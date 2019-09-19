@@ -1,5 +1,8 @@
 <template>
   <div class="leader">
+    <audio autoplay loop>
+      <source src="../audio/congrats.mp3" type="audio/mp3" />
+    </audio>
     <h1>LEADERBOARD</h1>
     <hr />
     <b-table class="halo" :items="items" :fields="fields" responsive="sm"></b-table>
@@ -7,6 +10,8 @@
 </template>
 
 <script>
+import db from '../apis/firebase'
+const {Tap} = db
 export default {
   data() {
     return {
@@ -14,14 +19,20 @@ export default {
         { key: "username", sortable: false },
         { key: "score", sortable: false }
       ],
-      items: [
-        { username: "Larsen", score: 20 },
-        { username: "Geneva", score: 30 },
-        { username: "Jami", score: 70 },
-        { username: "Jami", score: 70 },
-        { username: "Jami", score: 70 }
-      ]
+      items: []
     };
+  },
+  created() {
+    //this.$route.params.id
+    Tap.doc('eWhY9chB0UrWJmAV8ufJ').onSnapshot(
+      querySnapshot => {
+     let result = querySnapshot.data().result
+     this.items = result
+      },
+      err => {
+        console.log(`Encountered error: ${err}`);
+      }
+    );
   }
 };
 </script>
