@@ -69,6 +69,17 @@ export default {
       localStorage.setItem('room', id)
     },
     startGame(id) {
+      this.$store.commit('PLAYGAME')
+        this.$router.push('/game')
+        setTimeout(()=>{
+          this.$store.commit('ENDGAME')
+          this.$router.push(`/leaderboard/${id}`)
+          Tap.doc(id).update({
+              result: firebase.firestore.FieldValue.arrayUnion(res)
+          })
+          localStorage.clear()
+        }, 10000)
+
       this.$router.push(`/game/${id}`);
       Tap.doc(id).update({
         wePlay: true
@@ -86,21 +97,23 @@ export default {
         });
 
         this.rooms = allRooms;
+        Tap
+          .doc(localStorage.getItem("room"))
+          .onSnapshot(docRef => {
+            let wePlay = docRef.data().wePlay;
+            if (wePlay) {
+              this.$router.push(`/game/${docRef.id}`);
+              console.log('masuk', docRef.id);
+            }
+          });
       },
       err => {
         console.log(`Encountered error: ${err}`);
       }
     );
-    Tap.onSnapshot(() => {
-     Tap
-        .doc(localStorage.getItem("room"))
-        .onSnapshot(docRef => {
-          let wePlay = docRef.data().wePlaying;
-          if (wePlay) {
-            this.$router.push(`/game/${docRef.id}`);
-          }
-        });
-    });
+
+    // Tap.onSnapshot(() => {
+    // });
   }
 };
 </script>

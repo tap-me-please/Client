@@ -26,7 +26,7 @@ export default {
     Tap.doc(this.$route.params.id).onSnapshot(
       querySnapshot => {
      let result = querySnapshot.data().result
-     this.items = result
+     this.items = result.sort(function(a,b){return b.score - a.score})
       },
       err => {
         console.log(`Encountered error: ${err}`);
@@ -137,5 +137,9 @@ h1 {
     -webkit-animation-timing-function: ease-out;
     animation-timing-function: ease-out;
   }
+}
+
+th,td {
+  color: white !important
 }
 </style>

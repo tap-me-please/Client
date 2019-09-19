@@ -41,7 +41,17 @@ export default {
   },
   watch: {
     marginLeft() {
+        setTimeout(()=>{
+          this.$store.commit('ENDGAME')
+          this.$router.push(`/leaderboard/${this.$route.params.id}`)
+          Tap.doc(this.$route.params.id).update({
+              result: firebase.firestore.FieldValue.arrayUnion(res)
+          })
+          localStorage.clear()
+        }, 10000)
+
         if(this.$store.state.score == 10){
+            localStorage.clear()
             let res = {
               username: localStorage.getItem('username'),
               score: this.$store.state.score
