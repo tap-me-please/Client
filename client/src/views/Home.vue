@@ -1,5 +1,6 @@
 <template>
   <div class="home">
+    <!-- <button>Play Game</button> -->
     <audio controls id="myVideo" autoplay loop hidden>
       <source src="../assets/sound.wav" type="audio/wav" />Your browser does not support the audio element.
     </audio>
