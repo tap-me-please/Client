@@ -1,15 +1,105 @@
 <template>
   <div class="room">
-    <div class="d-flex">
-      <b-form-input v-model="text" placeholder="Create new room"></b-form-input>
-      <b-button class="mx-3" variant="outline-primary">Create</b-button>
+    <div 
+      class="d-flex" 
+      id="room-input">
+      <b-form-input 
+        v-model="name" 
+        placeholder="Create new room" />
+      <b-button 
+        @click.prevent="createRoom"
+        class="mx-3" 
+        variant="outline-primary">
+        Create
+      </b-button>
+    </div>
+    <div class="row mt-4">
+      <div 
+        class="col"
+        v-for="(room, index) in rooms" :key="index">
+          <b-card
+            :title="room.name"
+            tag="article"
+            style="max-width: 20rem; color: black;"
+            class="mb-2">
+            <b-card-text>
+              <i class="fas fa-users mx-3"></i>
+              <span>{{ room.players.length }}</span>
+            </b-card-text>
+
+            <b-button
+              @click.prevent="startGame(room.id)"
+              v-if="username === room.master"
+              href="#" 
+              variant="primary">
+              Start
+            </b-button>
+            <b-button 
+              @click.prevent="joinRoom(room.id)"
+              v-if="username !== room.master"
+              href="#" 
+              variant="primary">
+              Join
+            </b-button>
+          </b-card>
+        </div>
     </div>
   </div>
 </template>
 
 <script>
-export default {
+import db from '@/apis/firebase.js'
+import firebase from 'firebase/app'
+const { Tap } = db
+const { admin } = db
 
+export default {
+  data() {
+    return {
+      name: '',
+      username: 'sultan',
+      rooms: [],
+    }
+  },
+  methods: {
+    createRoom() {
+      Tap.add({
+        master: this.username,
+        name: this.name,
+        players: [this.username],
+        result: []
+      })
+        .then(doc => {
+          console.log(doc.id)
+        })
+    },
+    joinRoom(id, players) {
+      Tap.doc(id).update({
+        players: firebase.firestore.FieldValue.arrayUnion(this.username)
+      })
+    },
+    startGame(id) {
+      this.$router.push(`/game/${id}`)
+    }
+  },
+  created() {
+    // this.username = localStorage.getItem('username')
+
+    Tap.onSnapshot(
+      querySnapshot => {
+        let allRooms = []
+
+        querySnapshot.forEach(doc => {
+          allRooms.push({...doc.data(), id: doc.id})
+        })
+
+        this.rooms= allRooms
+      },
+      err => {
+        console.log(`Encountered error: ${err}`);
+      }
+    );
+  }
 }
 </script>
 
@@ -19,7 +109,7 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  /* justify-content: center; */
   margin: 0;
   width: 100%;
   font-family: "Exo", sans-serif;
@@ -39,5 +129,9 @@ export default {
   100% {
     background-position: 0% 50%;
   }
+}
+
+#room-input {
+  margin-top: 50px;
 }
 </style>
