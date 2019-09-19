@@ -1,65 +1,53 @@
 <template>
   <div class="room">
-    <div 
-      class="d-flex" 
-      id="room-input">
-      <b-form-input 
-        v-model="name" 
-        placeholder="Create new room" />
-      <b-button 
-        @click.prevent="createRoom"
-        class="mx-3" 
-        variant="outline-primary">
-        Create
-      </b-button>
+    <div class="d-flex" id="room-input">
+      <b-form-input v-model="name" placeholder="Create new room" />
+      <b-button @click.prevent="createRoom" class="mx-3" variant="outline-primary">Create</b-button>
     </div>
     <div class="row mt-4">
-      <div 
-        class="col"
-        v-for="(room, index) in rooms" :key="index">
-          <b-card
-            :title="room.name"
-            tag="article"
-            style="max-width: 20rem; color: black;"
-            class="mb-2">
-            <b-card-text>
-              <i class="fas fa-users mx-3"></i>
-              <span>{{ room.players.length }}</span>
-            </b-card-text>
+      <div class="col" v-for="(room, index) in rooms" :key="index">
+        <b-card
+          :title="room.name"
+          tag="article"
+          style="max-width: 20rem; color: black;"
+          class="mb-2"
+        >
+          <b-card-text>
+            <i class="fas fa-users mx-3"></i>
+            <span>{{ room.players.length }}</span>
+          </b-card-text>
 
-            <b-button
-              @click.prevent="startGame(room.id)"
-              v-if="username === room.master"
-              href="#" 
-              variant="primary">
-              Start
-            </b-button>
-            <b-button 
-              @click.prevent="joinRoom(room.id)"
-              v-if="username !== room.master"
-              href="#" 
-              variant="primary">
-              Join
-            </b-button>
-          </b-card>
-        </div>
+          <b-button
+            @click.prevent="startGame(room.id)"
+            v-if="username === room.master"
+            href="#"
+            variant="primary"
+          >Start</b-button>
+          <b-button
+            @click.prevent="joinRoom(room.id)"
+            v-if="username !== room.master"
+            href="#"
+            variant="primary"
+          >Join</b-button>
+        </b-card>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import db from '@/apis/firebase.js'
-import firebase from 'firebase/app'
-const { Tap } = db
-const { admin } = db
+import db from "@/apis/firebase.js";
+import firebase from "firebase/app";
+const { Tap } = db;
+const { admin } = db;
 
 export default {
   data() {
     return {
-      name: '',
-      username: 'sultan',
-      rooms: [],
-    }
+      name: "",
+      username: "",
+      rooms: []
+    };
   },
   methods: {
     createRoom() {
@@ -67,40 +55,54 @@ export default {
         master: this.username,
         name: this.name,
         players: [this.username],
-        result: []
-      })
-        .then(doc => {
-          console.log(doc.id)
-        })
+        result: [],
+        wePlay: false,
+
+      }).then(doc => {
+        console.log(doc.id);
+      });
     },
     joinRoom(id, players) {
       Tap.doc(id).update({
         players: firebase.firestore.FieldValue.arrayUnion(this.username)
-      })
+      });
+      localStorage.setItem('room', id)
     },
     startGame(id) {
-      this.$router.push(`/game/${id}`)
+      this.$router.push(`/game/${id}`);
+      Tap.doc(id).update({
+        wePlay: true
+      })
     }
   },
   created() {
-    // this.username = localStorage.getItem('username')
-
+    this.username = localStorage.getItem("username");
     Tap.onSnapshot(
       querySnapshot => {
-        let allRooms = []
+        let allRooms = [];
 
         querySnapshot.forEach(doc => {
-          allRooms.push({...doc.data(), id: doc.id})
-        })
+          allRooms.push({ ...doc.data(), id: doc.id });
+        });
 
-        this.rooms= allRooms
+        this.rooms = allRooms;
       },
       err => {
         console.log(`Encountered error: ${err}`);
       }
     );
+    Tap.onSnapshot(() => {
+     Tap
+        .doc(localStorage.getItem("room"))
+        .onSnapshot(docRef => {
+          let wePlay = docRef.data().wePlaying;
+          if (wePlay) {
+            this.$router.push(`/game/${docRef.id}`);
+          }
+        });
+    });
   }
-}
+};
 </script>
 
 <style scoped>

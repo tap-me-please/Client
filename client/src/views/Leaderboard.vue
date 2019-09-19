@@ -23,8 +23,7 @@ export default {
     };
   },
   created() {
-    //this.$route.params.id
-    Tap.doc('eWhY9chB0UrWJmAV8ufJ').onSnapshot(
+    Tap.doc(this.$route.params.id).onSnapshot(
       querySnapshot => {
      let result = querySnapshot.data().result
      this.items = result

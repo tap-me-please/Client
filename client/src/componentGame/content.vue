@@ -5,6 +5,9 @@
 </template>
 
 <script>
+import db from '../apis/firebase'
+import firebase from 'firebase'
+const {Tap} = db
 export default {
   props: ["nameId", "margin"],
   data(){
@@ -39,8 +42,14 @@ export default {
   watch: {
     marginLeft() {
         if(this.$store.state.score == 10){
-            this.$router.push('/')
-            console.log('MENANG WKWKWKWK');
+            let res = {
+              username: localStorage.getItem('username'),
+              score: this.$store.state.score
+            }
+            Tap.doc(this.$route.params.id).update({
+              result: firebase.firestore.FieldValue.arrayUnion(res)
+            })
+            this.$router.push(`/leaderboard/${this.$route.params.id}`)
         }
         this.start();
     }
