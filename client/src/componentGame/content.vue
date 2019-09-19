@@ -38,6 +38,10 @@ export default {
   },
   watch: {
     marginLeft() {
+        if(this.$store.state.score == 10){
+            this.$router.push('/')
+            console.log('MENANG WKWKWKWK');
+        }
         this.start();
     }
   }
