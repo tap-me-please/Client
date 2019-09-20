@@ -4,6 +4,18 @@
   </div>
 </template>
 
+<script>
+export default {
+  created: function() {
+    if (!localStorage.getItem('username')) {
+      this.$router.push('/')
+    } else {
+      this.$router.push('/Room')
+    }
+  }
+}
+</script>
+
 <style>
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
