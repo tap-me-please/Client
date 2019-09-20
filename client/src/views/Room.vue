@@ -1,11 +1,14 @@
 <template>
   <div class="room">
+    <audio autoplay loop>
+      <source src="../audio/sound.wav" type="audio/wav" />
+    </audio>
     <div class="d-flex" id="room-input">
       <b-form-input v-model="name" placeholder="Create new room" />
       <b-button @click.prevent="createRoom" class="mx-3" variant="outline-primary">Create</b-button>
     </div>
     <div class="row mt-4">
-      <div class="col" v-for="(room, index) in rooms" :key="index">
+      <div class="col goyang" v-for="(room, index) in rooms" :key="index">
         <b-card
           :title="room.name"
           tag="article"
@@ -21,7 +24,7 @@
             @click.prevent="startGame(room.id)"
             v-if="username === room.master"
             href="#"
-            variant="primary"
+            class="mx-3" variant="outline-primary"
           >Start</b-button>
           <b-button
             @click.prevent="joinRoom(room.id)"
@@ -56,7 +59,8 @@ export default {
         name: this.name,
         players: [this.username],
         result: [],
-        wePlay: false,
+        wePlay: 'belum',
+        status: false
 
       }).then(doc => {
         console.log(doc.id);
@@ -69,26 +73,28 @@ export default {
       localStorage.setItem('room', id)
     },
     startGame(id) {
-      this.$store.commit('PLAYGAME')
-        this.$router.push('/game')
-        setTimeout(()=>{
-          this.$store.commit('ENDGAME')
-          this.$router.push(`/leaderboard/${id}`)
-          Tap.doc(id).update({
-              result: firebase.firestore.FieldValue.arrayUnion(res)
-          })
-          localStorage.clear()
-        }, 10000)
+      localStorage.setItem('room', id)
 
+      this.$store.commit('PLAYGAME')
       this.$router.push(`/game/${id}`);
       Tap.doc(id).update({
-        wePlay: true
+        wePlay: 'main'
       })
     }
   },
+  mounted(){
+      const audio = new Audio('../audio/sound.wav')
+      let plays = audio.play()
+      if(plays !== undefined){
+        audio.play().catch(err=>{
+         console.log(err)
+    })
+      }
+    
+  },
   created() {
     this.username = localStorage.getItem("username");
-    Tap.onSnapshot(
+    Tap.where("status", "==", false).onSnapshot(
       querySnapshot => {
         let allRooms = [];
 
@@ -100,10 +106,12 @@ export default {
         Tap
           .doc(localStorage.getItem("room"))
           .onSnapshot(docRef => {
-            let wePlay = docRef.data().wePlay;
-            if (wePlay) {
+            let wePlay = docRef.data().wePlay
+            if (wePlay == 'main') {
               this.$router.push(`/game/${docRef.id}`);
-              console.log('masuk', docRef.id);
+
+            } else if(wePlay == 'selesai') {
+              this.$router.push(`/leaderboard/${docRef.id}`)
             }
           });
       },
@@ -148,5 +156,62 @@ export default {
 
 #room-input {
   margin-top: 50px;
+}
+
+.goyang {
+  -webkit-animation: vibrate-2 1s linear 0.1s infinite both;
+  animation: vibrate-2 1s linear 0.1s infinite both;
+}
+@-webkit-keyframes vibrate-2 {
+  0% {
+    -webkit-transform: translate(0);
+            transform: translate(0);
+  }
+  20% {
+    -webkit-transform: translate(2px, -2px);
+            transform: translate(2px, -2px);
+  }
+  40% {
+    -webkit-transform: translate(2px, 2px);
+            transform: translate(2px, 2px);
+  }
+  60% {
+    -webkit-transform: translate(-2px, 2px);
+            transform: translate(-2px, 2px);
+  }
+  80% {
+    -webkit-transform: translate(-2px, -2px);
+            transform: translate(-2px, -2px);
+  }
+  100% {
+    -webkit-transform: translate(0);
+            transform: translate(0);
+  }
+}
+@keyframes vibrate-2 {
+  0% {
+    -webkit-transform: translate(0);
+            transform: translate(0);
+  }
+  20% {
+    -webkit-transform: translate(2px, -2px);
+            transform: translate(2px, -2px);
+  }
+  40% {
+    -webkit-transform: translate(2px, 2px);
+            transform: translate(2px, 2px);
+  }
+  60% {
+    -webkit-transform: translate(-2px, 2px);
+            transform: translate(-2px, 2px);
+  }
+  80% {
+    -webkit-transform: translate(-2px, -2px);
+            transform: translate(-2px, -2px);
+  }
+  100% {
+    -webkit-transform: translate(0);
+            transform: translate(0);
+  }
 }
 </style>

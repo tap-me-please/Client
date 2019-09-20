@@ -1,10 +1,13 @@
 <template>
   <div class="home">
     <!-- <button>Play Game</button> -->
-    <audio controls id="myVideo" autoplay loop hidden>
-      <source src="../assets/sound.wav" type="audio/wav" />Your browser does not support the audio element.
+    <audio autoplay loop>
+      <source src="../audio/sound.wav" type="audio/wav" />
     </audio>
-    <div class="d-flex">
+    <div class="goyang">
+      <img src="../assets/logo.png" style="margin-bottom:5px;height:200px;width:200px;">
+    </div>
+    <div class="d-flex goyang">
     <form @submit.prevent="addUser">
       <input type="text" name="focus" v-model="username" required class="search-box" placeholder="Enter your name" />
       <button class="close-icon" type="reset"></button>
@@ -30,6 +33,16 @@ export default {
       localStorage.setItem("username", this.username);
       this.$router.push('Room')
     }
+  },
+  created(){
+      const audio = new Audio('../audio/sound.wav')
+      audio.play()
+      // let plays = audio.play()
+      // if(plays !== undefined){
+      //   audio.play().catch(err=>{
+      //    console.log(err)
+      //    })
+      // }
   }
 };
 </script>
@@ -112,4 +125,61 @@ export default {
 .search-box:not(:valid) ~ .close-icon {
 	display: none;
 }
+.goyang {
+  -webkit-animation: vibrate-2 1s linear 0.1s infinite both;
+  animation: vibrate-2 1s linear 0.1s infinite both;
+}
+@-webkit-keyframes vibrate-2 {
+  0% {
+    -webkit-transform: translate(0);
+            transform: translate(0);
+  }
+  20% {
+    -webkit-transform: translate(2px, -2px);
+            transform: translate(2px, -2px);
+  }
+  40% {
+    -webkit-transform: translate(2px, 2px);
+            transform: translate(2px, 2px);
+  }
+  60% {
+    -webkit-transform: translate(-2px, 2px);
+            transform: translate(-2px, 2px);
+  }
+  80% {
+    -webkit-transform: translate(-2px, -2px);
+            transform: translate(-2px, -2px);
+  }
+  100% {
+    -webkit-transform: translate(0);
+            transform: translate(0);
+  }
+}
+@keyframes vibrate-2 {
+  0% {
+    -webkit-transform: translate(0);
+            transform: translate(0);
+  }
+  20% {
+    -webkit-transform: translate(2px, -2px);
+            transform: translate(2px, -2px);
+  }
+  40% {
+    -webkit-transform: translate(2px, 2px);
+            transform: translate(2px, 2px);
+  }
+  60% {
+    -webkit-transform: translate(-2px, 2px);
+            transform: translate(-2px, 2px);
+  }
+  80% {
+    -webkit-transform: translate(-2px, -2px);
+            transform: translate(-2px, -2px);
+  }
+  100% {
+    -webkit-transform: translate(0);
+            transform: translate(0);
+  }
+}
+
 </style>

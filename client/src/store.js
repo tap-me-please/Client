@@ -14,11 +14,14 @@ export default new Vuex.Store({
     },
     ADDSCORE (state ,  payload){
       state.score++;
+      console.log(state.score);
     },
     ENDGAME (state , payload){
       state.start = false
-      state.score = 0
     },
+    RESETSCORE(state, payload) {
+      state.score = 0
+    }
   },
   actions: {
 

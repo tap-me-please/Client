@@ -1,5 +1,8 @@
 <template>
   <div class="content">
+    <audio v-if="nyala" autoplay>
+        <source src="../audio/klik.wav" type="audio/wav" />
+    </audio>
     <img src="https://www.gambaranimasi.org/data/media/194/animasi-bergerak-ikan-0004.gif" v-bind:style="{ left : marginLeft + 'px' , top : marginTop + 'px' ,  display : display }" @click="tes">
   </div>
 </template>
@@ -7,6 +10,7 @@
 <script>
 import db from '../apis/firebase'
 import firebase from 'firebase'
+
 const {Tap} = db
 export default {
   props: ["nameId", "margin"],
@@ -15,7 +19,8 @@ export default {
         marginLeft : Math.floor( Math.random() * 1800 ),
         marginTop : Math.floor( Math.random() * 500 ),
         kondisi : false,
-        display : 'block'
+        display : 'block',
+        nyala: false
       }
   },
   methods: {
@@ -34,6 +39,12 @@ export default {
     tes (){
         this.$store.commit('ADDSCORE')
         this.display = 'none'
+        
+        this.nyala = true
+
+        setTimeout(() => {
+          this.nyala = false
+        }, 1000)
     }
   },
   created() {
@@ -41,26 +52,6 @@ export default {
   },
   watch: {
     marginLeft() {
-        setTimeout(()=>{
-          this.$store.commit('ENDGAME')
-          this.$router.push(`/leaderboard/${this.$route.params.id}`)
-          Tap.doc(this.$route.params.id).update({
-              result: firebase.firestore.FieldValue.arrayUnion(res)
-          })
-          localStorage.clear()
-        }, 10000)
-
-        if(this.$store.state.score == 10){
-            localStorage.clear()
-            let res = {
-              username: localStorage.getItem('username'),
-              score: this.$store.state.score
-            }
-            Tap.doc(this.$route.params.id).update({
-              result: firebase.firestore.FieldValue.arrayUnion(res)
-            })
-            this.$router.push(`/leaderboard/${this.$route.params.id}`)
-        }
         this.start();
     }
   }
@@ -71,6 +62,7 @@ export default {
     img {
         position: absolute;
         cursor: pointer;
+        transition: 0.5s all;
     }
     .content {
         display: flex;

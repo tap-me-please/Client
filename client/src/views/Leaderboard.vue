@@ -4,14 +4,15 @@
       <source src="../audio/congrats.mp3" type="audio/mp3" />
     </audio>
     <h1>LEADERBOARD</h1>
+    <b-button class="mx-3" variant="outline-primary" @click.prevent="exit">exit</b-button>
     <hr />
     <b-table class="halo" :items="items" :fields="fields" responsive="sm"></b-table>
   </div>
 </template>
 
 <script>
-import db from '../apis/firebase'
-const {Tap} = db
+import db from "../apis/firebase";
+const { Tap } = db;
 export default {
   data() {
     return {
@@ -22,11 +23,33 @@ export default {
       items: []
     };
   },
+  methods: {
+    exit() {
+      this.$router.push("/Room");
+      this.$store.commit("RESETSCORE");
+      localStorage.removeItem("room");
+    }
+  },
   created() {
+    const audio = new Audio("../audio/congrats.mp3");
+    let plays = audio.play();
+    if (plays !== undefined) {
+      audio.play().catch(err => {
+        console.log(err);
+      });
+    }
+
+    Tap.doc(this.$route.params.id).update({
+      wePlay: "selesai",
+      status: true
+    });
+
     Tap.doc(this.$route.params.id).onSnapshot(
       querySnapshot => {
-     let result = querySnapshot.data().result
-     this.items = result.sort(function(a,b){return b.score - a.score})
+        let result = querySnapshot.data().result;
+        this.items = result.sort(function(a, b) {
+          return b.score - a.score;
+        });
       },
       err => {
         console.log(`Encountered error: ${err}`);
@@ -139,7 +162,8 @@ h1 {
   }
 }
 
-th,td {
-  color: white !important
+th,
+td {
+  color: white !important;
 }
 </style>
